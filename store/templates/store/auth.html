@@ -1,0 +1,111 @@
+{% extends "store/base.html" %}
+{% load static %}
+{% block title %}{% if mode == 'signin' %}Signin{% else %}Create Account{% endif %}{% endblock %}
+{% block content %}
+<div class="auth-page-wrapper">
+  <div class="auth-modal-card standalone-card">
+
+  {% if mode == 'signin' %}
+    <!-- ================= SIGN IN ================= -->
+    <h2 class="auth-title">Signin</h2>
+    <a href="{% url 'auth' %}{% if next %}?next={{ next|urlencode }}{% endif %}" class="auth-switch-link">Create an Account</a>
+
+    <form method="post" action="{% url 'signin' %}" class="auth-form">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+
+      {% if form.non_field_errors %}
+        <div class="auth-error-box">{{ form.non_field_errors.0 }}</div>
+      {% endif %}
+
+      <div class="auth-field-wrap">
+        <label for="{{ form.username.id_for_label }}">User name</label>
+        {{ form.username }}
+        {% for e in form.username.errors %}<div class="err">{{ e }}</div>{% endfor %}
+      </div>
+
+      <div class="auth-field-wrap">
+        <label for="{{ form.password.id_for_label }}">Password</label>
+        {{ form.password }}
+        {% for e in form.password.errors %}<div class="err">{{ e }}</div>{% endfor %}
+        <div class="auth-row"><a href="{% url 'password_reset' %}">Forgot password?</a></div>
+      </div>
+
+      <div class="text-center mt-4">
+        <button type="submit" class="btn-brand submit-btn">Submit now</button>
+      </div>
+      <p class="auth-bottom">New here? <a href="{% url 'auth' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Create an account</a></p>
+    </form>
+
+  {% else %}
+    <!-- ================= CREATE ACCOUNT (default) ================= -->
+    <h2 class="auth-title">Create Account</h2>
+    <a href="{% url 'signin' %}{% if next %}?next={{ next|urlencode }}{% endif %}" class="auth-switch-link">Already have an account? Signin</a>
+
+    <form method="post" action="{% url 'register' %}" class="auth-form">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+
+      <div class="auth-field-wrap">
+        <label for="{{ form.username.id_for_label }}">User name</label>
+        {{ form.username }}
+        {% for e in form.username.errors %}<div class="err">{{ e }}</div>{% endfor %}
+      </div>
+
+      <div class="auth-field-wrap">
+        <label for="{{ form.email.id_for_label }}">Email ID</label>
+        {{ form.email }}
+        {% for e in form.email.errors %}<div class="err">{{ e }}</div>{% endfor %}
+      </div>
+
+      <div class="auth-field-wrap">
+        <label for="{{ form.password.id_for_label }}">Password</label>
+        {{ form.password }}
+        {% for e in form.password.errors %}<div class="err">{{ e }}</div>{% endfor %}
+        <ul class="pw-rules" id="pwRules">
+          <li data-rule="len">At least 8 characters</li>
+          <li data-rule="letter">At least one letter</li>
+          <li data-rule="num">At least one number</li>
+          <li data-rule="match">Both passwords match</li>
+        </ul>
+      </div>
+
+      <div class="auth-field-wrap">
+        <label for="{{ form.confirm_password.id_for_label }}">Confirm Password</label>
+        {{ form.confirm_password }}
+        {% for e in form.confirm_password.errors %}<div class="err">{{ e }}</div>{% endfor %}
+      </div>
+
+      <div class="text-center mt-4">
+        <button type="submit" class="btn-brand submit-btn">Submit now</button>
+      </div>
+    </form>
+  {% endif %}
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function(){
+  var pw = document.getElementById('reg_password'),
+      cp = document.getElementById('reg_confirm_password'),
+      box = document.getElementById('pwRules');
+  if (!pw || !cp || !box) return;
+  function mark(rule, ok){
+    var li = box.querySelector('[data-rule="' + rule + '"]');
+    if (li) li.classList.toggle('ok', ok);
+  }
+  function check(){
+    var v = pw.value;
+    mark('len', v.length >= 8);
+    mark('letter', /[A-Za-z]/.test(v));
+    mark('num', /\d/.test(v));
+    mark('match', v.length > 0 && v === cp.value);
+  }
+  pw.addEventListener('input', check);
+  cp.addEventListener('input', check);
+})();
+</script>
+{% endblock %}

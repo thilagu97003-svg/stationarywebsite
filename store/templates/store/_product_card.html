@@ -1,0 +1,28 @@
+{% load static store_extras %}
+<article class="p-card">
+  <!-- 1. Image click panna Product Detail Page open aagum -->
+  <a href="{% url 'product_detail' p.pk %}" class="text-decoration-none">
+    <img src="{% static 'images/' %}{{ p.image }}" alt="{{ p.name }}" loading="lazy">
+  </a>
+
+  <!-- 2. Title click panna Product Detail Page open aagum -->
+  <h3>
+    <a href="{% url 'product_detail' p.pk %}" class="text-decoration-none text-dark">
+      {{ p.name }}
+    </a>
+  </h3>
+
+  <!-- Star Rating -->
+  <div class="stars" aria-label="Rated {{ p.stars }} out of 5">
+    {% for i in "12345" %}
+      <i class="bi {% if forloop.counter <= p.stars %}bi-star-fill{% else %}bi-star{% endif %}"></i>
+    {% endfor %}
+  </div>
+
+  <!-- Price & Bulk Deal -->
+  <div class="price">Rs. {{ p.price|money }}</div>
+  <div class="bulk">Buy {{ p.bulk_qty }} or more @ Rs. {{ p.bulk_price|floatformat:2 }}</div>
+
+  <!-- 3. Unga Existing AJAX Add to Cart Button (Way 1) -->
+  <button type="button" class="btn-brand js-add" data-url="{% url 'cart_add' p.pk %}">Add to Cart</button>
+</article>

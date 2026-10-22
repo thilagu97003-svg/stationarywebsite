@@ -1,0 +1,31 @@
+{% extends "store/base.html" %}
+{% block title %}{{ title }} | Supplyhive{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="card p-4 p-md-5 border-0 shadow-sm rounded-4" style="background: #ffffff; max-width: 900px; margin: auto;">
+    <h1 class="fw-bold text-dark mb-4 border-bottom pb-3">{{ title }}</h1>
+    
+    {% if page_type == 'terms' %}
+      <h5>1. Introduction</h5>
+      <p class="text-muted">Welcome to Supplyhive. By accessing or using our website, you agree to comply with and be bound by these terms.</p>
+      <h5>2. Orders & Payments</h5>
+      <p class="text-muted">All orders placed are subject to product availability and confirmation of order price. Payments must be processed through our authorized channels.</p>
+    {% elif page_type == 'cookie-policy' %}
+      <h5>1. Use of Cookies</h5>
+      <p class="text-muted">We use essential cookies to maintain user session, shopping cart items, and deliver an optimal browsing experience.</p>
+      <h5>2. Managing Cookies</h5>
+      <p class="text-muted">You can adjust your browser settings to refuse or delete cookies anytime without affecting major website functionality.</p>
+    {% else %}
+      <h5>1. Privacy Commitment</h5>
+      <p class="text-muted">Supplyhive respects your privacy. We protect customer details such as name, contact address, and transaction histories securely.</p>
+      <h5>2. Data Usage</h5>
+      <p class="text-muted">Your data is only utilized for order fulfillment, delivery tracking, and customer support communications.</p>
+    {% endif %}
+    
+    <div class="mt-4 pt-3 border-top">
+      <a href="{% url 'shop' %}" class="btn btn-primary rounded-pill px-4">&larr; Return to Shop</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

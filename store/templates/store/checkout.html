@@ -1,0 +1,391 @@
+{% extends "store/base.html" %}{% load static store_extras %}
+{% block title %}Checkout | Supplyhive{% endblock %}
+
+{% block content %}
+<div class="wrap py-4">
+  <div class="checkout-header mb-4">
+    <h1 class="page-title m-0 fw-bold">Secure Checkout</h1>
+    <p class="text-muted">Please enter your delivery and payment details to complete the order.</p>
+  </div>
+
+  <form method="post" id="checkoutForm" action="{% if is_single %}{% url 'checkout' %}?pid={{ pid }}{% else %}{% url 'checkout' %}{% endif %}" novalidate>
+    {% csrf_token %}
+
+    <div class="row g-4">
+      
+      <!-- ================= DELIVERY DETAILS ================= -->
+      <div class="col-12 col-lg-7">
+        <div class="checkout-card mb-4">
+          <div class="card-head">
+            <span class="step-num">1</span>
+            <h3 class="m-0">Delivery Details</h3>
+          </div>
+
+          <div class="row g-3 mt-1">
+            <!-- 1. Full Name -->
+            <div class="col-12 col-md-6">
+              <label for="{{ form.name.id_for_label }}" class="field-label">Full Name *</label>
+              {{ form.name }}
+              {% for e in form.name.errors %}<div class="err-msg">{{ e }}</div>{% endfor %}
+            </div>
+
+            <!-- 2. Mobile Number (Name pakkathulaye/keela neat-ah) -->
+            <div class="col-12 col-md-6">
+              <label class="field-label">Mobile Number *</label>
+              <input type="tel" name="phone_number" id="id_phone_number" class="field" placeholder="10-digit mobile number" maxlength="10" required value="{{ request.user.username }}">
+              <div class="err-msg" id="errPhone"></div>
+            </div>
+
+            <!-- 3. Street Address -->
+            <div class="col-12">
+              <label for="{{ form.address.id_for_label }}" class="field-label">Street Address *</label>
+              {{ form.address }}
+              {% for e in form.address.errors %}<div class="err-msg">{{ e }}</div>{% endfor %}
+            </div>
+
+            <!-- 4. Town / City -->
+            <div class="col-12 col-md-4">
+              <label for="{{ form.city.id_for_label }}" class="field-label">Town / City *</label>
+              {{ form.city }}
+              {% for e in form.city.errors %}<div class="err-msg">{{ e }}</div>{% endfor %}
+            </div>
+
+            <!-- 5. State -->
+            <div class="col-12 col-md-4">
+              <label class="field-label">State *</label>
+              <input type="text" class="field" value="Tamil Nadu" readonly style="background:#d9e6f9 !important; cursor:not-allowed;">
+            </div>
+
+            <!-- 6. Pincode -->
+            <div class="col-12 col-md-4">
+              <label for="{{ form.postal_code.id_for_label }}" class="field-label">Postal Code (PIN) *</label>
+              {{ form.postal_code }}
+              {% for e in form.postal_code.errors %}<div class="err-msg">{{ e }}</div>{% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= PAYMENT METHOD ================= -->
+        <div class="checkout-card">
+          <div class="card-head">
+            <span class="step-num">2</span>
+            <h3 class="m-0">Payment Method</h3>
+          </div>
+
+          <div class="pay-method-list mt-3">
+            <!-- COD -->
+            <label class="pay-option-row">
+              <input type="radio" name="payment_method" value="cod" checked onchange="togglePaymentFields('cod')">
+              <div class="pay-opt-info">
+                <i class="bi bi-truck pay-icon"></i>
+                <div>
+                  <span class="opt-name">Cash on Delivery (COD)</span>
+                  <small class="opt-sub text-muted d-block">Pay with cash when package is delivered</small>
+                </div>
+              </div>
+            </label>
+
+            <!-- Debit Card -->
+            <label class="pay-option-row">
+              <input type="radio" name="payment_method" value="debit" onchange="togglePaymentFields('debit')">
+              <div class="pay-opt-info">
+                <i class="bi bi-credit-card-2-front pay-icon"></i>
+                <div>
+                  <span class="opt-name">Debit / Credit Card</span>
+                  <small class="opt-sub text-muted d-block">Visa, MasterCard, RuPay</small>
+                </div>
+              </div>
+            </label>
+
+            <!-- Card Sub-Form Container -->
+            <div id="cardDetailsBox" class="pay-subbox" style="display:none;">
+              <h5 class="fw-bold mb-3"><i class="bi bi-shield-lock-fill text-success me-1"></i> Enter Card Information</h5>
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="field-label">Card Holder Name *</label>
+                  <input type="text" id="cardName" class="field" placeholder="Name as printed on card">
+                  <div class="err-msg" id="errCardName"></div>
+                </div>
+
+                <div class="col-12">
+                  <label class="field-label">Card Number *</label>
+                  <div class="input-icon-wrap">
+                    <input type="text" id="cardNumber" class="field" placeholder="1234 5678 9012 3456" maxlength="19">
+                    <i class="bi bi-credit-card input-right-icon"></i>
+                  </div>
+                  <div class="err-msg" id="errCardNumber"></div>
+                </div>
+
+                <div class="col-6">
+                  <label class="field-label">Expiry Date *</label>
+                  <input type="text" id="cardExpiry" class="field" placeholder="MM / YY" maxlength="5">
+                  <div class="err-msg" id="errCardExpiry"></div>
+                </div>
+
+                <div class="col-6">
+                  <label class="field-label">CVV *</label>
+                  <input type="password" id="cardCvv" class="field" placeholder="•••" maxlength="3">
+                  <div class="err-msg" id="errCardCvv"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- UPI -->
+            <label class="pay-option-row">
+              <input type="radio" name="payment_method" value="upi" onchange="togglePaymentFields('upi')">
+              <div class="pay-opt-info">
+                <i class="bi bi-qr-code-scan pay-icon"></i>
+                <div>
+                  <span class="opt-name">UPI / QR Code</span>
+                  <small class="opt-sub text-muted d-block">Google Pay, PhonePe, Paytm</small>
+                </div>
+              </div>
+            </label>
+
+            <div id="upiDetailsBox" class="pay-subbox" style="display:none;">
+              <label class="field-label">Enter UPI ID (VPA) *</label>
+              <input type="text" id="upiId" class="field" placeholder="mobile@upi / username@okhdfcbank">
+              <div class="err-msg" id="errUpi"></div>
+            </div>
+
+            <!-- Net Banking -->
+            <label class="pay-option-row">
+              <input type="radio" name="payment_method" value="netbanking" onchange="togglePaymentFields('netbanking')">
+              <div class="pay-opt-info">
+                <i class="bi bi-bank pay-icon"></i>
+                <div>
+                  <span class="opt-name">Net Banking</span>
+                  <small class="opt-sub text-muted d-block">All Indian major banks supported</small>
+                </div>
+              </div>
+            </label>
+
+            <div id="netbankingDetailsBox" class="pay-subbox" style="display:none;">
+              <label class="field-label">Choose Your Bank *</label>
+              <select id="bankSelect" class="field">
+                <option value="">-- Select Bank --</option>
+                <option value="sbi">State Bank of India (SBI)</option>
+                <option value="hdfc">HDFC Bank</option>
+                <option value="icici">ICICI Bank</option>
+                <option value="axis">Axis Bank</option>
+              </select>
+              <div class="err-msg" id="errBank"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= ORDER SUMMARY ================= -->
+      <div class="col-12 col-lg-5">
+        <div class="checkout-card order-summary-sticky">
+          <div class="card-head border-bottom pb-3 mb-3">
+            <h3 class="m-0 fw-bold">Order Summary</h3>
+            <span class="badge bg-primary px-3 py-2 rounded-pill">{{ rows|length }} Item{% if rows|length > 1 %}s{% endif %}</span>
+          </div>
+
+          <div class="summary-items-list mb-3">
+            {% for r in rows %}
+            <div class="summary-product-row">
+              <div class="product-thumb-wrap">
+                <img src="{% static 'images/' %}{{ r.product.image }}" class="summary-thumb" alt="{{ r.product.name }}">
+                <span class="qty-pill">{{ r.qty }}</span>
+              </div>
+              <div class="product-info-wrap">
+                <div class="product-name fw-semibold">{{ r.product.name }}</div>
+                <div class="product-unit text-muted small">Rs.{{ r.unit_price|money }} each</div>
+              </div>
+              <div class="product-price-wrap fw-bold fs-6">
+                Rs.{{ r.line_total|money }}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <div class="summary-calc border-top pt-3">
+            <div class="d-flex justify-content-between text-muted mb-2">
+              <span>Item Subtotal</span>
+              <span class="fw-semibold">Rs.{{ total|money }}</span>
+            </div>
+            <div class="d-flex justify-content-between text-muted mb-2">
+              <span>Shipping & Handling</span>
+              <span class="text-success fw-semibold">FREE</span>
+            </div>
+            <div class="d-flex justify-content-between text-muted mb-3">
+              <span>Estimated Taxes (GST)</span>
+              <span class="fw-semibold">Included</span>
+            </div>
+
+            <div class="summary-total-bar">
+              <span class="fs-5 fw-bold">Grand Total</span>
+              <span class="fs-4 fw-bolder">Rs.{{ total|money }}</span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-brand checkout-btn-wide mt-4 w-100" id="submitOrderBtn">
+            <span id="btnText">Place Order &bull; Rs.{{ total|money }}</span>
+            <i class="bi bi-arrow-right-circle-fill ms-2 fs-5"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </form>
+</div>
+
+<!-- ================= REAL-TIME VALIDATION SCRIPT ================= -->
+<script>
+  function togglePaymentFields(method) {
+    document.getElementById("cardDetailsBox").style.display = (method === 'debit') ? 'block' : 'none';
+    document.getElementById("upiDetailsBox").style.display = (method === 'upi') ? 'block' : 'none';
+    document.getElementById("netbankingDetailsBox").style.display = (method === 'netbanking') ? 'block' : 'none';
+
+    const btnText = document.getElementById("btnText");
+    if (method === 'cod') {
+      btnText.innerHTML = "Place Order &bull; Rs.{{ total|money }}";
+    } else {
+      btnText.innerHTML = "Pay Securely &bull; Rs.{{ total|money }}";
+    }
+  }
+
+  // 1. Phone Input Numeric Only
+  const phoneInput = document.getElementById("id_phone_number");
+  phoneInput.addEventListener("input", function(e) {
+    e.target.value = e.target.value.replace(/\D/g, '').substring(0, 10);
+    const err = document.getElementById("errPhone");
+    if (e.target.value.length > 0 && e.target.value.length < 10) {
+      err.innerText = "Please enter valid 10-digit number.";
+    } else {
+      err.innerText = "";
+    }
+  });
+
+  // 2. Card Number Auto Spacing
+  const cardInput = document.getElementById("cardNumber");
+  cardInput.addEventListener("input", function(e) {
+    let val = e.target.value.replace(/\D/g, '').substring(0, 16);
+    e.target.value = val.match(/.{1,4}/g)?.join(' ') || val;
+    const err = document.getElementById("errCardNumber");
+    if (val.length > 0 && val.length < 16) {
+      err.innerText = "Card number must be 16 digits.";
+    } else {
+      err.innerText = "";
+    }
+  });
+
+  // 3. REAL-TIME INSTANT EXPIRY VALIDATION (Month 01-12 & Future Year check)
+  const expiryInput = document.getElementById("cardExpiry");
+  function validateExpiry(val) {
+    const err = document.getElementById("errCardExpiry");
+    if (!val) {
+      err.innerText = "Expiry date required.";
+      return false;
+    }
+
+    const parts = val.split('/');
+    if (parts.length !== 2 || parts[0].length < 2 || parts[1].length < 2) {
+      err.innerText = "Format must be MM/YY";
+      return false;
+    }
+
+    const month = parseInt(parts[0], 10);
+    const year = parseInt("20" + parts[1], 10);
+
+    if (month < 1 || month > 12) {
+      err.innerText = "Invalid month! Must be between 01 and 12.";
+      return false;
+    }
+
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+
+    if (year < currentYear || (year === currentYear && month < currentMonth)) {
+      err.innerText = "Card has already expired!";
+      return false;
+    }
+
+    err.innerText = "";
+    return true;
+  }
+
+  expiryInput.addEventListener("input", function(e) {
+    let val = e.target.value.replace(/\D/g, '').substring(0, 4);
+    if (val.length >= 2) {
+      val = val.substring(0, 2) + '/' + val.substring(2);
+    }
+    e.target.value = val;
+    if (val.length === 5) {
+      validateExpiry(val);
+    }
+  });
+
+  expiryInput.addEventListener("blur", function(e) {
+    if (e.target.value.length > 0) {
+      validateExpiry(e.target.value);
+    }
+  });
+
+  // 4. CVV Real-time check
+  const cvvInput = document.getElementById("cardCvv");
+  cvvInput.addEventListener("input", function(e) {
+    e.target.value = e.target.value.replace(/\D/g, '').substring(0, 3);
+    const err = document.getElementById("errCardCvv");
+    if (e.target.value.length > 0 && e.target.value.length < 3) {
+      err.innerText = "CVV must be 3 digits.";
+    } else {
+      err.innerText = "";
+    }
+  });
+
+  // Form Submit Handler
+  document.getElementById("checkoutForm").addEventListener("submit", function(e) {
+    const selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
+    let isValid = true;
+
+    // Check Mobile
+    if (phoneInput.value.length !== 10) {
+      document.getElementById("errPhone").innerText = "Enter valid 10-digit mobile number.";
+      isValid = false;
+    }
+
+    if (selectedMethod === 'debit') {
+      const name = document.getElementById("cardName").value.trim();
+      const num = document.getElementById("cardNumber").value.replace(/\s/g, '');
+      const exp = document.getElementById("cardExpiry").value.trim();
+      const cvv = document.getElementById("cardCvv").value.trim();
+
+      if (!name) {
+        document.getElementById("errCardName").innerText = "Card holder name is required.";
+        isValid = false;
+      }
+      if (num.length !== 16) {
+        document.getElementById("errCardNumber").innerText = "Enter 16-digit card number.";
+        isValid = false;
+      }
+      if (!validateExpiry(exp)) {
+        isValid = false;
+      }
+      if (cvv.length !== 3) {
+        document.getElementById("errCardCvv").innerText = "Enter 3-digit CVV.";
+        isValid = false;
+      }
+    } else if (selectedMethod === 'upi') {
+      const upi = document.getElementById("upiId").value.trim();
+      if (!upi || !upi.includes("@")) {
+        document.getElementById("errUpi").innerText = "Enter a valid UPI ID.";
+        isValid = false;
+      }
+    } else if (selectedMethod === 'netbanking') {
+      const bank = document.getElementById("bankSelect").value;
+      if (!bank) {
+        document.getElementById("errBank").innerText = "Please select a bank.";
+        isValid = false;
+      }
+    }
+
+    if (!isValid) {
+      e.preventDefault();
+    }
+  });
+</script>
+{% endblock %}

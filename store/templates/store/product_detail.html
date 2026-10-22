@@ -1,0 +1,279 @@
+{% extends "store/base.html" %}
+{% load static store_extras %}
+{% block title %}{{ product.name }} | Supplyhive{% endblock %}
+
+{% block content %}
+<div class="wrap py-4">
+  
+  <!-- 1. Top Title (Figma Match) -->
+  <div class="text-center mb-4">
+    <h1 class="page-title fw-bold m-0">Product Details</h1>
+  </div>
+
+  <div class="product-detail-card">
+    <div class="row g-5 align-items-center">
+      
+      <!-- Left: Product Image & Pricing Badge -->
+      <div class="col-12 col-md-6 text-center">
+        <div class="detail-img-wrapper">
+          <img src="{% static 'images/' %}{{ product.image }}" alt="{{ product.name }}" class="detail-main-img">
+        </div>
+        <div class="mt-3">
+          <h4 class="fw-bold mb-1">{{ product.name }}</h4>
+          <div class="fs-5 fw-bold text-dark">Rs. {{ product.price|money }}</div>
+          {% if product.bulk_discount %}
+            <div class="text-success small fw-semibold mt-1">
+              Buy pack of {{ product.bulk_qty }} @ Rs. {{ product.bulk_price|money }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Right: Details, Dynamic Rating & 2-Way Checkout Buttons -->
+      <div class="col-12 col-md-6">
+        <div class="detail-info-box text-start">
+          
+          <h2 class="detail-title fw-bold mb-2">{{ product.name }}</h2>
+
+         <!-- Dynamic Subtitle based on Name & Category -->
+          {% if 'scissor' in product.name|lower or 'craft' in product.name|lower %}
+            <h5 class="text-muted fw-semibold mb-3">Ergonomic Precision Cutting &amp; Craft Tool</h5>
+          {% elif 'file' in product.name|lower or 'folder' in product.name|lower %}
+            <h5 class="text-muted fw-semibold mb-3">Heavy-Duty Archive &amp; Document Preservation</h5>
+          {% elif 'pen' in product.name|lower or 'pencil' in product.name|lower %}
+            <h5 class="text-muted fw-semibold mb-3">Smooth Flow &amp; Precision Writing Instruments</h5>
+          {% elif 'notebook' in product.name|lower or 'notepad' in product.name|lower or 'paper' in product.name|lower %}
+            <h5 class="text-muted fw-semibold mb-3">Premium Bleed-Resistant Everyday Stationery</h5>
+          {% elif 'calculator' in product.name|lower %}
+            <h5 class="text-muted fw-semibold mb-3">High-Speed Scientific &amp; Mathematical Processing</h5>
+          {% elif 'stapler' in product.name|lower %}
+            <h5 class="text-muted fw-semibold mb-3">Jam-Free Desktop Binding &amp; Fastening System</h5>
+          {% else %}
+            <h5 class="text-muted fw-semibold mb-3">Essential Workspace &amp; Educational Utility</h5>
+          {% endif %}
+
+          <!-- Dynamic Stars Rating (Ovoru product-kum thanithani stars) -->
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="stars-gold fs-5">
+              {% for i in "12345" %}
+                <i class="bi {% if forloop.counter <= product.stars %}bi-star-fill text-warning{% else %}bi-star text-muted opacity-50{% endif %}"></i>
+              {% endfor %}
+            </div>
+            <span class="fw-bold text-dark">{{ product.stars }}.0 / 5.0</span>
+          </div>
+
+          <!-- Price Box -->
+          <div class="price-highlight-box mb-3">
+            <div class="fs-2 fw-bolder text-primary">Rs. {{ product.price|money }}</div>
+            {% if product.bulk_discount %}
+              <div class="bulk-badge-box">
+                <i class="bi bi-tag-fill me-1"></i>
+                Bulk Offer: Buy {{ product.bulk_qty }} or more @ <strong>Rs. {{ product.bulk_price|money }}</strong> each!
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Category-wise Paragraph Description -->
+          <p class="product-desc text-muted mb-3" style="line-height: 1.6;">
+            {% if 'scissor' in product.name|lower or 'craft' in product.name|lower %}
+              Stainless steel pattern blades-oda uruvaakkappattadhu. Paper, cardstock mattrum art ribbons-ah zigzag &amp; wavy pattern-la smooth-ah cut panna mudiyum. Kids safe handling-kum DIY projects-kum romba useful.
+            {% elif 'file' in product.name|lower or 'folder' in product.name|lower %}
+              Thick moisture-resistant card mattrum sturdy metal lever mechanism vachirukku. Important office documents, certificates mattrum bills-ah safe-ah vachu maintain panna 300+ sheets capacity tharum.
+            {% elif 'calculator' in product.name|lower %}
+              High-definition dual-line display mattrum 240+ computational functions konda scientific calculator. Engineering mattrum school mathematics calculations-ku accurate speed &amp; results tharum.
+            {% elif 'stapler' in product.name|lower %}
+              Solid steel body-oda quick jam-clearing mechanism irukku. Continuous paper stapling mattrum desk fastening work-ku romba smooth &amp; effortless.
+            {% elif 'pen' in product.name|lower or 'pencil' in product.name|lower %}
+              Quick-drying non-smudge archival ink-oda comfortable rubber grip irukku. Exams mattrum long professional writing hours-ku zero-skip ink flow tharum.
+            {% elif 'notebook' in product.name|lower or 'notepad' in product.name|lower %}
+              Ultra-smooth 80+ GSM pages-oda neat lay-flat binding vachirukku. Ink back page-la imprint aagadha vidhathula daily notes mattrum journaling-ku perfect.
+            {% else %}
+              Supplyhive premium grade everyday stationery item. Ergonomic design, long durability mattrum active workspace/academic use-ku high efficiency tharum.
+            {% endif %}
+          </p>
+
+          <!-- Category-wise Key Features -->
+          <div class="key-features-box mb-4">
+            <strong class="d-block text-dark mb-2">Key Features:</strong>
+            <ul class="features-list text-muted small mb-0">
+              {% if 'scissor' in product.name|lower or 'craft' in product.name|lower %}
+                <li>Blunt child-safe tip with comfortable soft-touch grip handles.</li>
+                <li>Multiple decorative pattern blades for creative paper art.</li>
+                <li>Rust-free hardened stainless steel edge retention.</li>
+              {% elif 'file' in product.name|lower or 'folder' in product.name|lower %}
+                <li>Heavy-duty lever arch clasp with reinforced metal finger ring.</li>
+                <li>Clear spine label holder for instant document identification.</li>
+                <li>Reinforced metal corner edges to prevent damage over years.</li>
+              {% elif 'calculator' in product.name|lower %}
+                <li>Clear 2-line liquid crystal display with fraction &amp; statistic modes.</li>
+                <li>Protective hard-shell slide-on case against drops.</li>
+                <li>Solar and long-life battery dual power source.</li>
+              {% elif 'stapler' in product.name|lower %}
+                <li>Binds up to 30 sheets effortlessly with low-force actuation.</li>
+                <li>Anti-slip rubberized base protects polished desktop surfaces.</li>
+                <li>Compatible with standard 24/6 and 26/6 staples.</li>
+              {% elif 'pen' in product.name|lower or 'pencil' in product.name|lower %}
+                <li>Smooth zero-skip tungsten tip with consistent ink flow.</li>
+                <li>Comfortable ergonomic barrel prevents hand fatigue.</li>
+                <li>Waterproof, smudge-free dark pigment ink.</li>
+              {% elif 'notebook' in product.name|lower or 'notepad' in product.name|lower %}
+                <li>Heavy 80+ GSM fountain-pen friendly micro-perforated pages.</li>
+                <li>360-degree flat opening twin-wire spiral binding.</li>
+                <li>Tear-resistant water-resistant protective poly cover.</li>
+              {% else %}
+                <li>Tested for high precision, smooth action, and extended service life.</li>
+                <li>Ergonomic lightweight form factor tailored for daily usage.</li>
+                <li>Built with durable, non-toxic commercial-grade materials.</li>
+              {% endif %}
+            </ul>
+          </div>
+
+          <!-- 2-Way Purchase Buttons -->
+          <div class="d-flex flex-wrap gap-3 mt-4">
+            <!-- 1. Add to Cart -->
+            <a href="{% url 'cart_add' product.pk %}" class="btn btn-outline-primary d-inline-flex align-items-center py-2 px-4 rounded-pill fw-bold">
+              <i class="bi bi-cart-plus me-2"></i>Add to Cart
+            </a>
+
+            <!-- 2. Direct Buy Now -->
+            <a href="{% url 'checkout' %}?pid={{ product.pk }}" class="btn-detail-buynow text-decoration-none">
+              <i class="bi bi-lightning-charge-fill me-2"></i>Proceed to Checkout
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= 2. COMMENTS & REVIEWS (Category-Wise Dynamic) ================= -->
+  <div class="reviews-container-card mt-5">
+    <h3 class="fw-bold mb-4 border-bottom pb-3">Comments &amp; Review</h3>
+
+    <div class="row g-4">
+      {% if product.category and product.category.slug in 'pens-and-writing pens writing-tools writing' %}
+        <!-- Pen Reviews -->
+        <div class="col-12 col-md-4">
+          <div class="review-box p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <strong class="text-dark">1. Exam Aspirant</strong>
+              <div class="text-warning small"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+            </div>
+            <p class="text-muted small mb-0">&ldquo;Ink smudge aagave illa, speed exam writing-ku grip romba comfortable-ah irundhuchu!&rdquo;</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="review-box p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <strong class="text-dark">2. Calligraphy / Sketching</strong>
+              <div class="text-warning small"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+            </div>
+            <p class="text-muted small mb-0">&ldquo;Very clean stroke lines with zero blotting. Worth buying the full pack.&rdquo;</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="review-box p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <strong class="text-dark">3. Daily Office Desk</strong>
+              <div class="text-warning small"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
+            </div>
+            <p class="text-muted small mb-0">&ldquo;Reliable click mechanism and long ink life. Fits perfectly for billing signatures.&rdquo;</p>
+          </div>
+        </div>
+
+      {% elif product.category and product.category.slug in 'files-and-folders files folders' %}
+        <!-- Files Reviews -->
+        <div class="col-12 col-md-4">
+          <div class="review-box p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <strong class="text-dark">1. Admin Manager</strong>
+              <div class="text-warning small"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+            </div>
+            <p class="text-muted small mb-0">&ldquo;Strong metal clip and spine. Easily accommodates over 250 sheets without bending.&rdquo;</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="review-box p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <strong class="text-dark">2. College Project Submissions</strong>
+              <div class="text-warning small"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+            </div>
+            <p class="text-muted small mb-0">&ldquo;Kept my semester viva reports safe and waterproof. Neat professional finish.&rdquo;</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="review-box p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <strong class="text-dark">3. Accounts Department</strong>
+              <div class="text-warning small"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
+            </div>
+            <p class="text-muted small mb-0">&ldquo;Index tags make bill retrieval effortless during quarterly audits.&rdquo;</p>
+          </div>
+        </div>
+
+      {% elif product.category and product.category.slug in 'paper-and-notebooks paper-products notebooks paper' %}
+        <!-- Notebook Reviews -->
+        <div class="col-12 col-md-4">
+          <div class="review-box p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <strong class="text-dark">1. College Student</strong>
+              <div class="text-warning small"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+            </div>
+            <p class="text-muted small mb-0">&ldquo;Paper thickness is excellent. Gel pen write pannalum back side imprint aagala!&rdquo;</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="review-box p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <strong class="text-dark">2. Journaling Enthusiast</strong>
+              <div class="text-warning small"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+            </div>
+            <p class="text-muted small mb-0">&ldquo;Smooth page texture and sturdy binding. Opens completely flat on desk.&rdquo;</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="review-box p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <strong class="text-dark">3. Daily Meeting Notes</strong>
+              <div class="text-warning small"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
+            </div>
+            <p class="text-muted small mb-0">&ldquo;Compact size, easily slips into my laptop sleeve. Great for quick client notes.&rdquo;</p>
+          </div>
+        </div>
+
+      {% else %}
+        <!-- Default / Office Basics Reviews -->
+        <div class="col-12 col-md-4">
+          <div class="review-box p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <strong class="text-dark">1. Student Perspective</strong>
+              <div class="text-warning small"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+            </div>
+            <p class="text-muted small mb-0">&ldquo;This has been a lifesaver for my school math and regular classes. Very easy to use!&rdquo;</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="review-box p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <strong class="text-dark">2. Professional / Engineer</strong>
+              <div class="text-warning small"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+            </div>
+            <p class="text-muted small mb-0">&ldquo;Excellent build quality and responsiveness. The layout is intuitive and handles work with zero trouble.&rdquo;</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="review-box p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <strong class="text-dark">3. General Office Use</strong>
+              <div class="text-warning small"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
+            </div>
+            <p class="text-muted small mb-0">&ldquo;Smooth operation and convenient form factor. Perfect fit for desk setups and administrative routines.&rdquo;</p>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

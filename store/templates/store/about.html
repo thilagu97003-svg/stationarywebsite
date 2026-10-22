@@ -1,0 +1,39 @@
+{% extends "store/base.html" %}
+{% load static %}
+
+{% block body_class %}page-about{% endblock %}
+{% block title %}About us{% endblock %}
+{% block content %}
+<div class="page-about">
+<img class="hero-img" src="{% static 'images/about/hero.jpg' %}" alt="Notebook, pen and phone on a leather bag">
+<h1 class="quote">&ldquo;Smart Supplies for Bright Futures.&rdquo;</h1>
+<p class="lead-text text-center mx-auto">We provide quality stationery and school supplies to support learning, creativity, and organization. From classrooms to home desks, we&rsquo;re here to help students and educators stay prepared and inspired.</p>
+<div class="row g-4 my-3">
+  {% for n in "123" %}<div class="col-12 col-md-4"><img class="img-round" src="{% static 'images/about/intro-' %}{{ n }}.jpg" alt="Stationery flat lay {{ n }}" loading="lazy"></div>{% endfor %}
+</div>
+
+<h2 class="about-title">PEN &amp; PENCIL</h2>
+<p class="lead-text">At Supplyhive, we believe a great pen is more than just a writing tool&mdash;it&rsquo;s an expression of thought, precision, and personality. From smooth everyday ballpoints to elegant signature pens, we offer reliable writing instruments designed for comfort, style, and performance.</p>
+<div class="row g-4 align-items-center">
+  <div class="col-12 col-md-6"><img class="cutout" src="{% static 'images/about/pens.png' %}" alt="Assorted pens" loading="lazy"></div>
+  <div class="col-12 col-md-6"><img class="cutout" src="{% static 'images/about/pencils.png' %}" alt="Coloured pencils" loading="lazy"></div>
+</div>
+
+<h2 class="about-title">BAGS</h2>
+<div class="row g-4 align-items-center">
+  <div class="col-12 col-md-6 text-center"><img class="cutout" src="{% static 'images/about/bag-1.png' %}" alt="Black laptop bag" loading="lazy"></div>
+  <div class="col-12 col-md-6 text-center"><img class="cutout" src="{% static 'images/about/bag-2.png' %}" alt="Brown leather satchel" loading="lazy"></div>
+</div>
+
+<h2 class="about-title">ALL STATIONERY</h2>
+<p class="lead-text">We offer a wide range of stationery essentials, from notebooks, folders, and sticky notes to markers, staplers, and rulers. Each item is chosen for quality, functionality, and style&mdash;perfect for school, office, or creative use.</p>
+<div class="row g-4 align-items-center">
+  <div class="col-12 col-md-6 text-center"><img class="cutout" src="{% static 'images/about/notepad.png' %}" alt="Notepad with a pen" loading="lazy"></div>
+  <div class="col-12 col-md-6 text-center">
+    <img class="cutout mb-3" src="{% static 'images/about/sticky.png' %}" alt="Yellow sticky note" loading="lazy">
+    <img class="cutout" src="{% static 'images/about/stapler.png' %}" alt="Red stapler" loading="lazy">
+  </div>
+</div>
+<div class="mt-5">{% include "store/_team.html" with team=team %}</div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "store/base.html" %}{% load static %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<img class="hero-img shop-hero" src="{% static 'images/' %}{{ hero|default:'shop/hero.jpg' }}" alt="{{ title }}"
+     data-fallback="{% static 'images/shop/hero.jpg' %}"
+     onerror="this.onerror=null;this.src=this.dataset.fallback">
+<h1 class="quote">&ldquo;Where Ideas Begin &ndash; Shop Smart, Stay Sharp!&rdquo;</h1>
+
+<div class="shop-head">
+    <button class="cat-toggle" id="catToggle" type="button" aria-expanded="true" aria-controls="shopSide"><i class="bi bi-list"></i> Categories</button>
+  <h2>{{ title }}</h2>
+</div>
+
+<div class="row g-4 shop-layout">
+  <aside id="shopSide" class="col-12 col-lg-3 shop-side">
+    <div class="side-panel">
+      <h3>Categories</h3>
+      {% for c in nav_categories %}
+      <a href="{% url 'shop_category' c.slug %}" class="{% if category == c %}active{% endif %}">{{ c.name }}</a>
+      {% endfor %}
+    </div>
+
+    <form class="side-panel price" method="get" action="">
+      {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+      <h3>Filter by Price</h3>
+      {% for r in price_ranges %}
+      <label class="price-opt">
+        <input type="checkbox" name="price" value="{{ r.key }}" {% if r.checked %}checked{% endif %} onchange="this.form.submit()">
+        <span>{{ r.label }}</span>
+      </label>
+      {% endfor %}
+      <noscript><button class="btn-brand mt-2" type="submit">Apply</button></noscript>
+    </form>
+  </aside>
+
+     <section id="shopMain" class="col-12 col-lg-9">
+    {% if page.paginator.count %}
+    <p class="result-count">Showing Result {{ page.start_index }}-{{ page.end_index }} of {{ page.paginator.count }} results</p>
+    <div class="row g-4 card-grid">
+      {% for p in page %}<div class="col-12 col-sm-6 col-xl-4">{% include "store/_product_card.html" %}</div>{% endfor %}
+    </div>
+    {% if page.has_other_pages %}
+    <nav class="mt-4" aria-label="Pages"><ul class="pagination justify-content-center">
+      {% for n in page.paginator.page_range %}<li class="page-item {% if n == page.number %}active{% endif %}"><a class="page-link" href="?{% if qs %}{{ qs }}&{% endif %}page={{ n }}">{{ n }}</a></li>{% endfor %}
+    </ul></nav>
+    {% endif %}
+    {% else %}
+    <p class="text-center my-5">No products found. Try another filter or <a href="{% url 'shop' %}">browse all categories</a>.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function(){
+  var btn=document.getElementById('catToggle'),
+      side=document.getElementById('shopSide'),
+      main=document.getElementById('shopMain');
+  function set(open){
+    side.classList.toggle('d-none',!open);
+    main.classList.toggle('col-lg-9',open);
+    main.classList.toggle('col-lg-12',!open);
+    btn.setAttribute('aria-expanded',open);
+    try{sessionStorage.setItem('shopSide',open?'1':'0');}catch(e){}
+  }
+  var saved=null;try{saved=sessionStorage.getItem('shopSide');}catch(e){}
+    set(saved!=='0');
+  btn.addEventListener('click',function(){set(side.classList.contains('d-none'));});
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "store/base.html" %}{% load static %}
+{% block title %}Home{% endblock %}
+{% block body_class %}page-home{% endblock %}
+{% block content %}
+<section class="home-hero">
+  <img class="hero-left" src="{% static 'images/home/hero-notebook.jpg' %}" alt="Notebooks and a stapler on a white desk">
+  <div class="hero-mid">
+    <div class="offer-badge">
+      <span>Upto 50% off on</span>
+      <span>Bulk Order</span>
+    </div>
+    <div class="bags">
+      <img src="{% static 'images/home/backpack.png' %}" alt="Yellow school backpack">
+      <img src="{% static 'images/home/backpack.png' %}" alt="" aria-hidden="true">
+    </div>
+  </div>
+  <img class="hero-right" src="{% static 'images/home/highlighters.jpg' %}" alt="Highlighters and paper clips">
+</section>
+
+<section class="text-center essential">
+  <h2 class="section-title">Essential Stationery, Exceptional Supply</h2>
+  <p class="lead-text">From pens to paper, we deliver quality tools that power classrooms, offices, and creativity. Bulk pricing, reliable service, and everything your workspace needs&mdash;right at your fingertips.</p>
+  <div class="row g-4 essential-row">
+    {% for n in "123" %}<div class="col-12 col-md-4"><img class="img-round" src="{% static 'images/home/essential-' %}{{ n }}.jpg" alt="Stationery flat lay {{ n }}" loading="lazy"></div>{% endfor %}
+  </div>
+</section>
+
+<section class="writing">
+  <div class="numbered">
+    <h3>1. Writing Essentials</h3>
+    <p>From everyday ballpoint pens to premium gel pens and highlighters, our writing tools ensure clarity, comfort, and reliability. Perfect for classrooms,&nbsp;offices, or creative spaces, these essentials are built to support productivity and expression at every level.</p>
+    <h3>2. Paper Products</h3>
+    <p>Whether it&rsquo;s notebooks, notepads, printer paper, or sticky notes, our paper supplies cover every need. Designed for durability and smooth performance, these products are ideal for note-taking, organizing, printing, or planning in any setting.</p>
+    <h3>3. Classroom &amp; Office Tools</h3>
+    <p>Keep workspaces equipped and efficient with rulers, staplers, scissors, erasers, and more. These tools bring order and precision to daily tasks, making them indispensable in both educational and professional environments.</p>
+  </div>
+  <div class="writing-img"><img class="cutout" src="{% static 'images/home/notepad-pen.png' %}" alt="Spiral notepad with a silver pen"></div>
+</section>
+
+<h2 class="section-title home-gap-lg">Featured Product</h2>
+<div class="row g-4 justify-content-center card-grid">{% for p in featured %}<div class="col-12 col-sm-6 col-lg-4">{% include "store/_product_card.html" %}</div>{% endfor %}</div>
+
+<h2 class="section-title">Trending</h2>
+<div class="row g-4 trend-row">
+  {% for n in "123456" %}<div class="col-12 col-sm-6 col-lg-4"><a href="{% url 'shop' %}"><img class="img-round" src="{% static 'images/home/trending-' %}{{ n }}.jpg" alt="Trending stationery {{ n }}" loading="lazy"></a></div>{% endfor %}
+</div>
+
+<section class="text-center testimonial">
+  <h2 class="section-title">Customer Testimonial</h2>
+  <p class="tag">Bulk Stationery. Better Prices.<br>Smarter Supply.</p>
+  <img class="avatar" src="{% static 'images/home/testimonial.jpg' %}" alt="Priya M">
+  <p class="lead-text">Working with SupplyHive has been a game-changer for my store. The quality of the stationery is consistently high, prices are competitive, and orders always arrive on time&mdash;making it easy to keep my shelves stocked and customers happy.&rdquo;</p>
+  <strong class="who">Priya M</strong><div class="role">Retail shop Owner</div>
+</section>
+
+<h2 class="section-title home-gap-xl">Back to School</h2>
+<div class="row g-4 justify-content-center card-grid">{% for p in school %}<div class="col-12 col-sm-6 col-lg-4">{% include "store/_product_card.html" %}</div>{% endfor %}</div>
+
+<div class="team-sec">{% include "store/_team.html" with team=team %}</div>
+{% endblock %}

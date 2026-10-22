@@ -1,0 +1,10 @@
+{% load static %}
+<section id="team" class="text-center">
+  <h2 class="section-title">The Team</h2>
+  <p class="lead-text">Our team is a dedicated group of professionals passionate about delivering quality stationery in bulk with efficiency and care. With expertise in sourcing, logistics, and customer service, we ensure every order meets the highest standards.</p>
+  <div class="row g-4 justify-content-center mt-1">
+    {% for img, role in team %}
+    <div class="col-12 col-sm-6 col-lg-3"><img class="team-img" src="{% static 'images/team/' %}{{ img }}" alt="Seth Rollins, {{ role }}" loading="lazy"><h3 class="team-name">Seth Rollins</h3><p>{{ role }}</p></div>
+    {% endfor %}
+  </div>
+</section>

@@ -1,0 +1,17 @@
+{% extends "store/base.html" %}{% load static %}
+{% block title %}Rate and Review{% endblock %}
+{% block content %}
+<section class="panel mx-auto my-4" style="max-width:560px">
+  <h1 class="panel-title">Rate and Review</h1>
+  <p class="text-center"><img class="thumb" src="{% static 'images/' %}{{ item.product.image }}" alt=""><br>{{ item.product.name }}</p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <div class="star-input" role="radiogroup" aria-label="Rating">
+      {% for radio in form.rating %}{{ radio.tag }}<label for="{{ radio.id_for_label }}" title="{{ radio.choice_label }} stars"><i class="bi bi-star-fill"></i></label>{% endfor %}
+    </div>
+    {% for e in form.rating.errors %}<div class="err text-center">Please choose a rating.</div>{% endfor %}
+    <div class="my-3">{{ form.comment }}</div>
+    <div class="text-center"><button class="btn-brand" type="submit">Submit review</button></div>
+  </form>
+</section>
+{% endblock %}

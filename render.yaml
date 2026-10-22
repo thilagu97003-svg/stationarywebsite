@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: supplyhive-stationery
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn stationery_shop.wsgi:application"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: SHOW_DEMO_OTP
+        value: "True"
+      - key: PYTHON_VERSION
+        value: "3.12.3"

@@ -1,0 +1,218 @@
+{% extends "store/base.html" %}
+{% load static %}
+{% block title %}Contact{% endblock %}
+{% block content %}
+
+<div class="wrap">
+  <!-- Hero Telephone Image -->
+  <img class="hero-img" src="{% static 'images/contact/hero.jpg' %}" alt="Vintage telephone on a table">
+  <h1 class="quote">&ldquo;Your Perfect Stationery Partner Is Just a Message Away.&rdquo;</h1>
+
+  <!-- Contact Details Panel with Clickable Tiles -->
+  <section class="panel text-center contact-panel">
+    <h2 class="panel-title">Contact Details</h2>
+    <div class="row g-3 justify-content-center mt-1">
+      
+      <!-- 1. Location Tile (Click panna keela irukra Chennai Map-ku smooth scroll aagum) -->
+      <div class="col-12 col-md-4">
+        <a href="#chennai-map-section" class="info-tile-link">
+          <div class="info-tile">
+            <i class="bi bi-geo-alt"></i>
+            <strong>Location</strong>
+            <p>No. 45, Mount Road, Anna Salai,<br>Chennai, Tamil Nadu 600002</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- 2. Email Tile (Click panna Mail box open aagum) -->
+      <div class="col-12 col-md-4">
+  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=supplyhive@gmail.com&su=Inquiry%20from%20Supplyhive%20Website" target="_blank" rel="noopener noreferrer" class="info-tile-link">
+    <div class="info-tile">
+      <i class="bi bi-envelope"></i>
+      <strong>E-mail</strong>
+      <p>
+        supplyhive@gmail.com<br>
+        supplyshop@example.com
+      </p>
+    </div>
+  </a>
+</div>
+
+      <!-- 3. Phone Tile (Click panna Dialer open aagum) -->
+      <div class="col-12 col-md-4">
+        <a href="tel:+919457896332" class="info-tile-link">
+          <div class="info-tile">
+            <i class="bi bi-telephone"></i>
+            <strong>Contact</strong>
+            <p>
+              +91 94578 96332<br>
+              +91 64578 96333
+            </p>
+          </div>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Real Interactive Chennai Google Map (Replaces old static image) -->
+  <div id="chennai-map-section" class="map-container">
+    <iframe 
+      title="Chennai Location Map"
+      src="https://maps.google.com/maps?q=Anna%20Salai%20Chennai&t=&z=14&ie=UTF8&iwloc=&output=embed" 
+      width="100%" 
+      height="440" 
+      style="border:0; border-radius: 20px; display: block;" 
+      allowfullscreen="" 
+      loading="lazy" 
+      referrerpolicy="no-referrer-when-downgrade">
+    </iframe>
+  </div>
+
+  <!-- Contact Form Section -->
+  <section class="panel mx-auto contact-form-sec">
+    <h2 class="panel-title fw-bold">Have a List? We&rsquo;ve Got the Stationery&mdash;Contact Us Now!</h2>
+    <p class="text-center mb-1 fw-medium" style="font-size:1.15rem;">Write Us</p>
+    <p class="text-center mb-4">We are always happy to be of service to you. Be sure to listen to the prompt to help direct you to the right person.</p>
+
+  
+
+    <!-- Working Form -->
+    <form method="post" novalidate class="form-grid contact-grid">
+      {% csrf_token %}
+      
+      <div>
+        <label for="{{ form.name.id_for_label }}">Name</label>
+        {{ form.name }}
+        {% for e in form.name.errors %}<div class="err">{{ e }}</div>{% endfor %}
+      </div>
+
+      <div>
+        <label for="{{ form.email.id_for_label }}">Email</label>
+        {{ form.email }}
+        {% for e in form.email.errors %}<div class="err">{{ e }}</div>{% endfor %}
+      </div>
+
+      <div>
+        <label for="{{ form.phone.id_for_label }}">Phone Number</label>
+        {{ form.phone }}
+        {% for e in form.phone.errors %}<div class="err">{{ e }}</div>{% endfor %}
+      </div>
+
+      <div>
+        <label for="{{ form.message.id_for_label }}">Message</label>
+        {{ form.message }}
+        {% for e in form.message.errors %}<div class="err">{{ e }}</div>{% endfor %}
+      </div>
+
+      <div class="full text-center mt-3">
+        <button type="submit" class="btn-brand send-btn">Send Message</button>
+      </div>
+    </form>
+  </section>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.querySelector(".contact-grid");
+  const nameInput = document.getElementById("{{ form.name.id_for_label }}");
+  const emailInput = document.getElementById("{{ form.email.id_for_label }}");
+  const phoneInput = document.getElementById("{{ form.phone.id_for_label }}");
+  const messageInput = document.getElementById("{{ form.message.id_for_label }}");
+
+  function setLiveError(input, msg) {
+    let err = input.parentElement.querySelector(".live-err");
+    if (!err) {
+      err = document.createElement("div");
+      err.className = "err live-err mt-1";
+      input.parentElement.appendChild(err);
+    }
+    err.innerText = msg;
+  }
+
+  function clearLiveError(input) {
+    const err = input.parentElement.querySelector(".live-err");
+    if (err) {
+      err.remove();
+    }
+  }
+
+  // 1. Name: Letters and spaces mattum thaan allow pannum
+  if (nameInput) {
+    nameInput.addEventListener("input", function () {
+      this.value = this.value.replace(/[^a-zA-Z\s]/g, "");
+      if (this.value.trim().length > 0 && this.value.trim().length < 3) {
+        setLiveError(this, "Name must be at least 3 letters.");
+      } else {
+        clearLiveError(this);
+      }
+    });
+  }
+
+  // 2. Email: Type pannumbodhe format check pannum
+  if (emailInput) {
+    emailInput.addEventListener("input", function () {
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (this.value.trim().length > 0 && !emailPattern.test(this.value.trim())) {
+        setLiveError(this, "Enter a valid email format (e.g. name@domain.com).");
+      } else {
+        clearLiveError(this);
+      }
+    });
+  }
+
+  // 3. Phone: Only numbers, alphabet type aagadhu, max 10 digits mattum thaan
+  if (phoneInput) {
+    phoneInput.setAttribute("maxlength", "10");
+    phoneInput.addEventListener("input", function () {
+      this.value = this.value.replace(/\D/g, "");
+      if (this.value.length > 0 && this.value.length !== 10) {
+        setLiveError(this, "Phone number must be exactly 10 digits.");
+      } else {
+        clearLiveError(this);
+      }
+    });
+  }
+
+  // 4. Message: Empty check
+  if (messageInput) {
+    messageInput.addEventListener("input", function () {
+      if (this.value.trim().length === 0) {
+        setLiveError(this, "Message cannot be empty.");
+      } else {
+        clearLiveError(this);
+      }
+    });
+  }
+
+  // Form submit check
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      let hasError = false;
+
+      if (!nameInput || nameInput.value.trim().length < 3) {
+        setLiveError(nameInput, "Please enter a valid name.");
+        hasError = true;
+      }
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailInput || !emailPattern.test(emailInput.value.trim())) {
+        setLiveError(emailInput, "Please enter a valid email address.");
+        hasError = true;
+      }
+      if (!phoneInput || phoneInput.value.trim().length !== 10) {
+        setLiveError(phoneInput, "Please enter a 10-digit phone number.");
+        hasError = true;
+      }
+      if (!messageInput || messageInput.value.trim().length === 0) {
+        setLiveError(messageInput, "Please enter a message.");
+        hasError = true;
+      }
+
+      if (hasError) {
+        e.preventDefault();
+      }
+    });
+  }
+});
+</script>
+
+{% endblock %}
