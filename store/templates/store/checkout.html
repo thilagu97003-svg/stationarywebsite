@@ -338,6 +338,16 @@
   });
 
   // Form Submit Handler
+  // UPI Real-time type pannumbodhu error clear aaga
+  const upiField = document.getElementById("upiId");
+  if (upiField) {
+    upiField.addEventListener("input", function() {
+      const err = document.getElementById("errUpi");
+      if (err && err.innerText !== "") {
+        err.innerText = "";
+      }
+    });
+  }
   document.getElementById("checkoutForm").addEventListener("submit", function(e) {
     const selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
     let isValid = true;
@@ -369,13 +379,34 @@
         document.getElementById("errCardCvv").innerText = "Enter 3-digit CVV.";
         isValid = false;
       }
-    } else if (selectedMethod === 'upi') {
-      const upi = document.getElementById("upiId").value.trim();
-      if (!upi || !upi.includes("@")) {
-        document.getElementById("errUpi").innerText = "Enter a valid UPI ID.";
+ } else if (selectedMethod === 'upi') {
+      const upiInput = document.getElementById("upiId");
+      const upi = upiInput.value.trim();
+      const errUpi = document.getElementById("errUpi");
+
+      // UPI format: username@bankhandle (handle-la alphabets mattum dhaan varanum)
+      const upiRegex = /^[a-zA-Z0-9.\-_]{2,49}@[a-zA-Z]{2,20}$/;
+
+      if (!upi) {
+        errUpi.innerText = "Please enter your UPI ID.";
         isValid = false;
+      } else if (!upi.includes("@")) {
+        errUpi.innerText = "UPI ID-la '@' kandippa irukkanum (e.g. username@okhdfcbank).";
+        isValid = false;
+      } else if (!upiRegex.test(upi)) {
+        const handle = upi.split("@")[1] || "";
+        // @-kku aprom number illana dash (-) vandha intha error kaattum
+        if (/\d/.test(handle) || handle.includes("-")) {
+          errUpi.innerText = "Invalid bank name! '@'-kku aprom number or symbol varakoodathu (e.g. @oksbi, @paytm, @upi).";
+        } else {
+          errUpi.innerText = "Invalid UPI format! Eg: 9876543210@paytm or name@oksbi";
+        }
+        isValid = false;
+      } else {
+        errUpi.innerText = "";
       }
-    } else if (selectedMethod === 'netbanking') {
+    }
+    else if (selectedMethod === 'netbanking') {
       const bank = document.getElementById("bankSelect").value;
       if (!bank) {
         document.getElementById("errBank").innerText = "Please select a bank.";

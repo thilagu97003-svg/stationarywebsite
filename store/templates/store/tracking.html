@@ -48,11 +48,12 @@
             <h2 class="track-id m-0 fw-bold">Order ID : {{ order.order_id }}</h2>
             <p class="text-muted small m-0 mt-1">Seller : Supplyhive &bull; <strong>Rs. {{ order.total|money }}</strong></p>
           </div>
-          <span class="badge bg-success fs-6 px-3 py-2 rounded-pill" id="liveStatusBadge">Order Placed</span>
+         <span class="badge {% if order.status|lower == 'delivered' %}bg-success text-white{% elif order.status|lower == 'out_for_delivery' %}bg-warning text-dark{% elif order.status|lower == 'shipped' %}bg-info text-dark{% else %}bg-primary text-white{% endif %} fs-6 px-3 py-2 rounded-pill" id="liveStatusBadge">{{ order.get_status_display }}</span>
         </div>
 
         <!-- Dynamic Live Timeline -->
         <ol class="timeline live-timeline-stepper">
+          <!-- 1. Order Confirmed (Eppovume Done) -->
           <li class="done" id="step-confirmed">
             <span class="dot"><i class="bi bi-check-lg"></i></span>
             <div>
@@ -60,22 +61,46 @@
               <small class="d-block text-muted">Order received at warehouse.</small>
             </div>
           </li>
-          <li id="step-shipped">
-            <span class="dot"><i class="bi bi-box-seam"></i></span>
+
+          <!-- 2. Shipped Step -->
+          <li class="{% if order.status|lower in 'shipped,out_for_delivery,delivered' %}done{% endif %}" id="step-shipped">
+            <span class="dot">
+              {% if order.status|lower in 'shipped,out_for_delivery,delivered' %}
+                <i class="bi bi-check-lg"></i>
+              {% else %}
+                <i class="bi bi-box-seam"></i>
+              {% endif %}
+            </span>
             <div>
               <strong>Shipped</strong>
               <small class="d-block text-muted">Packed & dispatched from Chennai facility.</small>
             </div>
           </li>
-          <li id="step-out">
-            <span class="dot"><i class="bi bi-bicycle"></i></span>
+
+          <!-- 3. Out for Delivery Step -->
+          <li class="{% if order.status|lower in 'out_for_delivery,delivered' %}done{% endif %}" id="step-out">
+            <span class="dot">
+              {% if order.status|lower in 'out_for_delivery,delivered' %}
+                <i class="bi bi-check-lg"></i>
+              {% else %}
+                <i class="bi bi-bicycle"></i>
+              {% endif %}
+            </span>
             <div>
               <strong>Out for Delivery</strong>
               <small class="d-block text-muted">Delivery partner is approaching your address.</small>
             </div>
           </li>
-          <li id="step-delivered">
-            <span class="dot"><i class="bi bi-house-check"></i></span>
+
+          <!-- 4. Delivered Step -->
+          <li class="{% if order.status|lower == 'delivered' %}done{% endif %}" id="step-delivered">
+            <span class="dot">
+              {% if order.status|lower == 'delivered' %}
+                <i class="bi bi-check-lg"></i>
+              {% else %}
+                <i class="bi bi-house-check"></i>
+              {% endif %}
+            </span>
             <div>
               <strong>Delivered</strong>
               <small class="d-block text-muted">Package delivered successfully to customer.</small>
@@ -249,77 +274,80 @@
   }
 
   // 2. Slow & Realistic Live Progress Simulation
-  function startLiveTracking() {
-    trackingStarted = true;
+function startLiveTracking() {
+        trackingStarted = true;
 
-    const van = document.getElementById("deliveryVan");
-    const roadFill = document.getElementById("vehicleRoadProgress");
-    const badge = document.getElementById("liveStatusBadge");
-    const eta = document.getElementById("etaTime");
+        const van = document.getElementById("deliveryVan");
+        const roadFill = document.getElementById("vehicleRoadProgress");
 
-    const stepShipped = document.getElementById("step-shipped");
-    const stepOut = document.getElementById("step-out");
-    const stepDelivered = document.getElementById("step-delivered");
-    const reviewSec = document.getElementById("reviewSection");
+        // Status mapping (percentages)
+        const statusMap = {
+            "order_placed": 5,
+            "confirmed": 5,
+            "shipped": 40,
+            "out_for_delivery": 70,
+            "delivered": 90
+        };
 
-    // Initial State: Order Confirmed
-    if (eta) eta.innerText = "Estimated: 2 Minutes";
+        // Status hierarchy order (previous step kandupidikka)
+        const statusOrder = ["order_placed", "confirmed", "shipped", "out_for_delivery", "delivered"];
 
-    // Step A: 12 Seconds - Shipped aagum
-    setTimeout(() => {
-      if (van) van.style.left = "35%";
-      if (roadFill) roadFill.style.width = "35%";
-      if (stepShipped) {
-        stepShipped.classList.add("done");
-        stepShipped.querySelector(".dot").innerHTML = '<i class="bi bi-check-lg"></i>';
-      }
-      if (badge) {
-        badge.innerText = "Shipped";
-        badge.className = "badge bg-info text-dark fs-6 px-3 py-2 rounded-pill";
-      }
-      if (eta) eta.innerText = "Estimated: 1 Minute remaining";
-    }, 12000);
+        const rawStatus = "{{ order.status }}".toLowerCase().trim().replace(/ /g, "_");
+        const orderId = "{{ order.order_id }}";
+        const targetPercent = statusMap[rawStatus] !== undefined ? statusMap[rawStatus] : 5;
+        const storageKey = "van_pos_" + orderId;
 
-    // Step B: 28 Seconds - Out for Delivery aagum
-    setTimeout(() => {
-      if (van) van.style.left = "70%";
-      if (roadFill) roadFill.style.width = "70%";
-      if (stepOut) {
-        stepOut.classList.add("done");
-        stepOut.querySelector(".dot").innerHTML = '<i class="bi bi-check-lg"></i>';
-      }
-      if (badge) {
-        badge.innerText = "Out for Delivery";
-        badge.className = "badge bg-warning text-dark fs-6 px-3 py-2 rounded-pill";
-      }
-      if (eta) eta.innerText = "Van nearby your location...";
-    }, 28000);
+        // LocalStorage-la irundhu edupom; illana direct previous step percentage edukrom
+        let previousPercent = localStorage.getItem(storageKey);
 
-    // Step C: 48 Seconds - Delivered aagi popup varum
-    setTimeout(() => {
-      if (van) van.style.left = "92%";
-      if (roadFill) roadFill.style.width = "100%";
-      if (stepDelivered) {
-        stepDelivered.classList.add("done");
-        stepDelivered.querySelector(".dot").innerHTML = '<i class="bi bi-check-lg"></i>';
-      }
-      if (badge) {
-        badge.innerText = "Delivered";
-        badge.className = "badge bg-success fs-6 px-3 py-2 rounded-pill";
-      }
-      if (eta) eta.innerText = "Delivered Just Now";
+        if (!previousPercent) {
+            let currentIndex = statusOrder.indexOf(rawStatus);
+            if (currentIndex > 0) {
+                let prevStatusName = statusOrder[currentIndex - 1];
+                previousPercent = statusMap[prevStatusName];
+            } else {
+                previousPercent = targetPercent;
+            }
+        } else {
+            previousPercent = parseInt(previousPercent);
+        }
 
-      // Status-ah backend-la Delivered nu update pannuvom
-      fetch("{% url 'mark_order_delivered' order.order_id %}");
+        // 1. Initial-ah Van-ah andha previous step-la Transition ILLAMA fix pandrom
+        if (van) {
+            van.style.transition = "none";
+            van.style.left = previousPercent + "%";
+        }
+        if (roadFill) {
+            roadFill.style.transition = "none";
+            roadFill.style.width = previousPercent + "%";
+        }
 
-      // Show Delivered Alert Popup
-      const deliveredModal = document.getElementById("deliveredSuccessModal");
-      if (deliveredModal) deliveredModal.style.display = "flex";
-      
-      if (reviewSec) reviewSec.style.display = "block";
-    }, 48000);
-  }
-
+        // 2. Previous-la irundhu Target-kku 6 seconds slow & smooth-ah move pandrom
+        if (previousPercent < targetPercent) {
+            setTimeout(() => {
+                if (van) {
+                    van.style.transition = "left 6s cubic-bezier(0.25, 1, 0.5, 1)";
+                    van.style.left = targetPercent + "%";
+                }
+                if (roadFill) {
+                    roadFill.style.transition = "width 6s cubic-bezier(0.25, 1, 0.5, 1)";
+                    roadFill.style.width = (targetPercent === 90 ? 100 : targetPercent) + "%";
+                }
+                localStorage.setItem(storageKey, targetPercent);
+            }, 300);
+        } else {
+            // Already delivered or same position
+            if (van) {
+                van.style.transition = "none";
+                van.style.left = targetPercent + "%";
+            }
+            if (roadFill) {
+                roadFill.style.transition = "none";
+                roadFill.style.width = (targetPercent === 90 ? 100 : targetPercent) + "%";
+            }
+            localStorage.setItem(storageKey, targetPercent);
+        }
+    }
   // 3. Interactive Star Rating selector
   const stars = document.querySelectorAll(".star-item");
   const ratingInput = document.getElementById("ratingInput");

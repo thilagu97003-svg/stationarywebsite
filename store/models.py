@@ -1,6 +1,7 @@
 import random
 import string
 from datetime import timedelta
+from django.utils import timezone
 
 from django.conf import settings
 from django.db import models
@@ -96,6 +97,13 @@ class Order(models.Model):
         due = self.expected_delivery.strftime("%b %d").replace(" 0", " ")
         labels = [f"Order Confirmed, {placed}", "Shipped", "Out for Delivery", f"Delivery, {due} by 11 PM"]
         return [{"label": l, "done": i <= done_upto} for i, l in enumerate(labels)]
+
+    @property
+    def estimated_delivery_date(self):
+        # created_at base panni 3 days kazhichu delivery date kaatta
+        if hasattr(self, 'created_at') and self.created_at:
+            return (self.created_at + timedelta(days=3)).strftime("%d %B, %Y")
+        return "3 Days from order"
 
 
 class OrderItem(models.Model):
