@@ -69,7 +69,7 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="confirmed")
     total = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    is_deleted_by_user = models.BooleanField(default=False)
     class Meta:
         ordering = ["-created_at"]
 
@@ -145,3 +145,4 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.created_at:%d %b %Y})"
+    

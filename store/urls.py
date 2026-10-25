@@ -15,6 +15,7 @@ urlpatterns = [
     path("signin/", views.signin_view, name="signin"),
     path("register/", views.register_view, name="register"),
     path("logout/", views.logout_view, name="logout"),
+    path('orders/delete/<str:order_id>/', views.delete_order_history, name='delete_order_history'),
 
     # Forgot password
     path("password-reset/", auth_views.PasswordResetView.as_view(

@@ -295,15 +295,21 @@ def checkout(request):
 
 @login_required
 def my_orders(request):
-    orders = request.user.orders.prefetch_related("items__product")
+    orders = request.user.orders.filter(is_deleted_by_user=False).prefetch_related("items__product")
     return render(request, "store/orders.html", {"orders": orders})
 
-
+@login_required
+def delete_order_history(request, order_id):
+    order = get_object_or_404(Order, order_id=order_id, user=request.user)
+    if order.status.lower() in ['delivered', 'completed']:
+        order.is_deleted_by_user = True
+        order.save()
+        messages.success(request, f"Order #{order.order_id} removed from your history.")
+    return redirect("orders")  # unga urls.py-la name='orders' nu irukku
 @login_required
 def tracking(request, order_id):
     order = get_object_or_404(Order.objects.prefetch_related("items__product"), order_id=order_id, user=request.user)
     return render(request, "store/tracking.html", {"order": order})
-
 
 @login_required
 def review(request, item_id):
